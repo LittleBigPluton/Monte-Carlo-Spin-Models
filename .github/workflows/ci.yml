@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.compiler }}
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler:
+          - gcc
+          - clang
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build g++ clang
+
+      - name: Configure GCC
+        if: matrix.compiler == 'gcc'
+        env:
+          CC: gcc
+          CXX: g++
+        run: |
+          cmake -S . -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DMC_BUILD_TESTS=ON \
+            -DMC_BUILD_EXPERIMENTS=ON
+
+      - name: Configure Clang
+        if: matrix.compiler == 'clang'
+        env:
+          CC: clang
+          CXX: clang++
+        run: |
+          cmake -S . -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DMC_BUILD_TESTS=ON \
+            -DMC_BUILD_EXPERIMENTS=ON
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Run unit tests
+        run: |
+          ctest \
+            --test-dir build \
+            --output-on-failure
