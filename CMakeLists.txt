@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
     MonteCarloSpinModels
-    VERSION 2.1.0
+    VERSION 2.2.0
     DESCRIPTION
         "Monte Carlo simulations of 2D Ising and XY models using Metropolis, Wolff and Hybrid Monte Carlo algorithms"
     LANGUAGES CXX
